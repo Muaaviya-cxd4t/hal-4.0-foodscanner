@@ -2,5 +2,3 @@ Flask
 flask-login
 qrcode
 pandas
-os
-csv
