@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Admin - Food Stats</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Participant Meal Logs</h2>
+    <table>
+      <tr>
+        <th>Participant ID</th>
+        <th>Breakfast</th>
+        <th>Lunch</th>
+        <th>Dinner</th>
+      </tr>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ "✅" if row[1] == 1 else "❌" }}</td>
+        <td>{{ "✅" if row[2] == 1 else "❌" }}</td>
+        <td>{{ "✅" if row[3] == 1 else "❌" }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <br />
+    <a href="{{ url_for('scanner') }}">Back to Scanner</a>
+  </body>
+</html>

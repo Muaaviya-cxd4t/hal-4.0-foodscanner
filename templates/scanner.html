@@ -10,9 +10,8 @@
     <style>
       * {
         box-sizing: border-box;
-        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        font-family: "Segoe UI", sans-serif;
       }
-
       body {
         margin: 0;
         height: 100vh;
@@ -23,147 +22,146 @@
       }
 
       .container {
-        width: 100%;
+        width: 95%;
         max-width: 420px;
         background-color: #eed4f3;
-        padding: 28px;
-        border-radius: 10px;
-        border: 1px solid #e5e7eb;
+        padding: 20px;
+        border-radius: 12px;
         text-align: center;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
       }
 
-      .logo {
-        width: 70px;
-        height: auto;
-        margin-bottom: 12px;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      h1 {
-        margin: 6px 0 4px;
-        color: #1f2937;
-        font-size: 22px;
-        font-weight: 600;
-      }
-
-      h2 {
-        margin: 0 0 16px;
-        color: #374151;
-        font-size: 14px;
-        font-weight: 500;
-      }
-
+      /* This ensures the scanner square and green lines are visible */
       #reader {
         width: 100%;
-        margin: 16px auto;
-        padding: 10px;
-        background-color: #ffffff;
+        border: none !important;
+        background: white;
         border-radius: 8px;
-        border: 1px solid #d1d5db;
+        overflow: hidden;
       }
 
-      .message {
-        margin-top: 14px;
-        font-size: 14px;
-        color: #1f2937;
+      #reader __dashboard {
+        padding: 10px !important;
       }
 
-      .message.error {
-        color: #7f1d1d;
+      .status-box {
+        min-height: 60px;
+        margin: 15px 0;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
       }
 
-      .logout-button,
-      button {
-        display: block;
-        width: 100%;
-        margin-top: 14px;
-        padding: 10px;
-        background-color: #21001d;
-        color: #ffffff;
-        border: none;
+      .idle {
+        background: #f3f4f6;
+        color: #4b5563;
+      }
+      .success {
+        background: #10b981;
+        color: white;
+        border: 2px solid #059669;
+      }
+      .error {
+        background: #ef4444;
+        color: white;
+        border: 2px solid #b91c1c;
+      }
+
+      .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .btn {
+        padding: 12px;
         border-radius: 6px;
         font-size: 14px;
         font-weight: 600;
-        cursor: pointer;
         text-decoration: none;
-        text-align: center;
+        color: white;
       }
-
-      .logout-button:hover,
-      button:hover {
-        background-color: #3b0033;
+      .btn-stats {
+        background: #4a1d46;
+      }
+      .btn-logout {
+        background: #1f2937;
       }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <img
-        src="{{ url_for('static', filename='Logo.png') }}"
-        style="width: 80px; height: auto; display: block; margin: 0 auto"
-      />
-
-      <h1>QR Code Scanner</h1>
-      <h2>HAL Hackathon Food Service</h2>
+      <h1 style="font-size: 20px; margin-bottom: 5px">QR Scanner</h1>
+      <p style="font-size: 13px; margin-bottom: 15px">
+        Aim at the Participant QR Code
+      </p>
 
       <div id="reader"></div>
 
-      <div id="message" class="message"></div>
+      <div id="status-display" class="status-box idle">Waiting for scan...</div>
 
-      <a href="/logout" class="logout-button">Logout</a>
-
-    {# 
-<form action="{{ url_for('count_page') }}" method="get">
-  <button type="submit">See Food Count</button>
-</form>
-#}
-    
+      <div class="nav-links">
+        <a href="/admin/view-stats" class="btn btn-stats">📈 View Meal Stats</a>
+        <a href="/logout" class="btn btn-logout">Logout</a>
+      </div>
+    </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        function onScanSuccess(decodedText, decodedResult) {
-          fetch("/scan_qr", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: `id=${decodedText}`,
+      const statusDisplay = document.getElementById("status-display");
+      let isProcessing = false;
+
+      function onScanSuccess(decodedText) {
+        if (isProcessing) return;
+        isProcessing = true;
+
+        statusDisplay.textContent = "Checking Database...";
+        statusDisplay.className = "status-box idle";
+
+        fetch("/scan_qr", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `id=${encodeURIComponent(decodedText)}`,
+        })
+          .then((res) =>
+            res.text().then((text) => ({ status: res.status, msg: text })),
+          )
+          .then((result) => {
+            if (result.status === 200) {
+              statusDisplay.textContent = "✅ " + result.msg;
+              statusDisplay.className = "status-box success";
+            } else {
+              statusDisplay.textContent = "❌ " + result.msg;
+              statusDisplay.className = "status-box error";
+            }
+
+            // Reset scanner for next person after 3 seconds
+            setTimeout(() => {
+              isProcessing = false;
+              statusDisplay.textContent = "Waiting for scan...";
+              statusDisplay.className = "status-box idle";
+            }, 3000);
           })
-            .then((response) =>
-              response
-                .text()
-                .then((data) => ({ status: response.status, body: data })),
-            )
-            .then((result) => {
-              const messageElement = document.getElementById("message");
-              if (result.status === 200) {
-                messageElement.className = "message";
-                messageElement.textContent = result.body;
-              } else {
-                messageElement.className = "message error";
-                messageElement.textContent = result.body;
-              }
-            })
-            .catch(() => {
-              const messageElement = document.getElementById("message");
-              messageElement.className = "message error";
-              messageElement.textContent =
-                "An error occurred. Please try again.";
-            });
-        }
+          .catch((err) => {
+            isProcessing = false;
+            statusDisplay.textContent = "Connection Error";
+            statusDisplay.className = "status-box error";
+          });
+      }
 
-        function onScanFailure(error) {
-          console.warn(`Code scan error = ${error}`);
-        }
-
-        let html5QrcodeScanner = new Html5QrcodeScanner("reader", {
-          fps: 10,
-          qrbox: 250,
-        });
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+      // Re-initialize with UI elements enabled
+      const html5QrcodeScanner = new Html5QrcodeScanner("reader", {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+        showTorchButtonIfSupported: true,
+        showZoomSliderIfSupported: true,
       });
+
+      html5QrcodeScanner.render(onScanSuccess);
     </script>
   </body>
 </html>

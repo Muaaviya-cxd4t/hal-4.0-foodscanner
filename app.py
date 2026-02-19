@@ -171,6 +171,20 @@ def submit_judging():
 
     return redirect(url_for("judges"))
 
+@app.route("/admin/view-stats")
+@login_required
+def view_stats():
+    if current_user.username != "foodadmin":
+        return "Access Denied", 403
+        
+    conn = sqlite3.connect("qrcodes.db")
+    c = conn.cursor()
+    c.execute("SELECT id, breakfast, lunch, dinner FROM participants WHERE breakfast=1 OR lunch=1 OR dinner=1")
+    data = c.fetchall()
+    conn.close()
+    
+    return render_template("stats.html", rows=data)
+
 
 # ---------------- QR LOGIC ---------------------------------------------------------------------------------------------------------
 
