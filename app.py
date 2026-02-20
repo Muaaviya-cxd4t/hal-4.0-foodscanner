@@ -122,6 +122,22 @@ def logout():
     return redirect(url_for("main"))
 
 # ---------------- PAGES ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+# app.py
+
+@app.route("/admin/reset-food", methods=["POST"])
+@login_required
+def reset_food_db():
+    if current_user.username != "foodadmin":
+        return "Access Denied", 403
+
+    conn = sqlite3.connect("qrcodes.db")
+    c = conn.cursor()
+    # Reset all meal columns to 0 for all rows
+    c.execute("UPDATE participants SET breakfast = 0, lunch = 0, dinner = 0")
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for("view_stats"))
 
 @app.route("/scanner")
 @login_required
