@@ -4,3 +4,4 @@ flask-bcrypt
 qrcode[pil]
 pandas
 gunicorn
+pytz
