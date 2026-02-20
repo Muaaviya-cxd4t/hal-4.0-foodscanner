@@ -198,12 +198,12 @@ def view_stats():
     conn = sqlite3.connect("qrcodes.db")
     c = conn.cursor()
     
-    # REMOVE the WHERE clause so you can see all participants
+    # FIX: Select everything from participants without the WHERE filter
     c.execute("SELECT id, breakfast, lunch, dinner FROM participants")
     data = c.fetchall()
     conn.close()
     
-    # Ensure the variable name passed to render_template matches the HTML (rows=data)
+    # Make sure we pass the list as 'rows' to match your HTML
     return render_template("stats.html", rows=data)
 
 
