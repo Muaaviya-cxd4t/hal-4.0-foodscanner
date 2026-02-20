@@ -3,47 +3,40 @@
   <head>
     <title>Admin - Food Stats</title>
     <style>
-      table { border-collapse: collapse; width: 100%; }
+      table { border-collapse: collapse; width: 100%; margin-top: 20px; }
       th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
       tr:nth-child(even) { background-color: #f2f2f2; }
-      .btn-reset {
-        background-color: #ef4444;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        text-decoration: none;
-        display: inline-block;
-        margin-bottom: 20px;
-      }
-      .btn-reset:hover { background-color: #b91c1c; }
+      .btn-reset { background-color: #ef4444; color: white; padding: 8px; border-radius: 5px; text-decoration: none; border: none; cursor: pointer; }
     </style>
   </head>
   <body>
     <h2>Participant Meal Logs</h2>
 
-    <form action="{{ url_for('reset_food_db') }}" method="POST" onsubmit="return confirm('Are you sure you want to reset ALL meal records to zero? This cannot be undone.');">
-        <button type="submit" class="btn-reset">Reset All Meal Data</button>
+    <form action="{{ url_for('reset_food_db') }}" method="POST" onsubmit="return confirm('Reset all data?');">
+      <button type="submit" class="btn-reset">Reset Database</button>
     </form>
 
     <table>
-      <tr>
-        <th>Participant ID</th>
-        <th>Breakfast</th>
-        <th>Lunch</th>
-        <th>Dinner</th>
-      </tr>
-      {% for row in data %}
-      <tr>
-        <td>{{ row[0] }}</td>
-        <td>{{ "✅" if row[1] == 1 else "❌" }}</td>
-        <td>{{ "✅" if row[2] == 1 else "❌" }}</td>
-        <td>{{ "✅" if row[3] == 1 else "❌" }}</td>
-      </tr>
-      {% endfor %}
+      <thead>
+        <tr>
+          <th>Participant ID</th>
+          <th>Breakfast</th>
+          <th>Lunch</th>
+          <th>Dinner</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row[0] }}</td>
+          <td>{{ "✅" if row[1] == 1 else "❌" }}</td>
+          <td>{{ "✅" if row[2] == 1 else "❌" }}</td>
+          <td>{{ "✅" if row[3] == 1 else "❌" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
+    
     <br />
     <a href="{{ url_for('scanner') }}">Back to Scanner</a>
   </body>
