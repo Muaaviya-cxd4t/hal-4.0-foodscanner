@@ -188,7 +188,7 @@ def submit_judging():
     conn.close()
 
     return redirect(url_for("judges"))
-
+    
 @app.route("/admin/view-stats")
 @login_required
 def view_stats():
@@ -197,10 +197,13 @@ def view_stats():
         
     conn = sqlite3.connect("qrcodes.db")
     c = conn.cursor()
-    c.execute("SELECT id, breakfast, lunch, dinner FROM participants WHERE breakfast=1 OR lunch=1 OR dinner=1")
+    
+    # REMOVE the WHERE clause so you can see all participants
+    c.execute("SELECT id, breakfast, lunch, dinner FROM participants")
     data = c.fetchall()
     conn.close()
     
+    # Ensure the variable name passed to render_template matches the HTML (rows=data)
     return render_template("stats.html", rows=data)
 
 
