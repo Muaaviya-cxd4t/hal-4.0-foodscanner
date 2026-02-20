@@ -18,19 +18,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = "main"
 
 # ---------------- DATABASE INITIALIZATION ----------------
-def get_current_meal():
-    # Change 'Asia/Kolkata' to your city's timezone
-    # Examples: 'America/New_York', 'Europe/London', 'Asia/Dubai'
-    user_tz = pytz.timezone('Asia/Kolkata') 
-    now = datetime.now(user_tz).time()
-    
-    if datetime.strptime("06:00", "%H:%M").time() <= now < datetime.strptime("10:00", "%H:%M").time():
-        return "breakfast"
-    if datetime.strptime("12:00", "%H:%M").time() <= now < datetime.strptime("15:00", "%H:%M").time():
-        return "lunch"
-    if datetime.strptime("18:00", "%H:%M").time() <= now < datetime.strptime("21:00", "%H:%M").time():
-        return "dinner"
-    return None
+
 
 def init_qr_db():
     """Initialize QR code database for food tracking"""
@@ -217,9 +205,12 @@ def view_stats():
 
 
 # ---------------- QR LOGIC ---------------------------------------------------------------------------------------------------------
-
 def get_current_meal():
-    now = datetime.now().time()
+    # Change 'Asia/Kolkata' to your city's timezone
+    # Examples: 'America/New_York', 'Europe/London', 'Asia/Dubai'
+    user_tz = pytz.timezone('Asia/Kolkata') 
+    now = datetime.now(user_tz).time()
+    
     if datetime.strptime("06:00", "%H:%M").time() <= now < datetime.strptime("10:00", "%H:%M").time():
         return "breakfast"
     if datetime.strptime("12:00", "%H:%M").time() <= now < datetime.strptime("15:00", "%H:%M").time():
