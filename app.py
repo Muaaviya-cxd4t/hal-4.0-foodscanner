@@ -218,7 +218,7 @@ def get_current_meal():
         return "breakfast"
     if datetime.strptime("12:00", "%H:%M").time() <= now < datetime.strptime("15:00", "%H:%M").time():
         return "lunch"
-    if datetime.strptime("18:00", "%H:%M").time() <= now < datetime.strptime("22:00", "%H:%M").time():
+    if datetime.strptime("18:00", "%H:%M").time() <= now < datetime.strptime("23:59", "%H:%M").time():
         return "dinner"
     return None
 
